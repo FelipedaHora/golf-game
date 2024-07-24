@@ -1,6 +1,5 @@
 score 0
-coins 18
-0,255,0-True
+coins 17
 0,0,0-True
 0,0,255-False
 64,64,64-False

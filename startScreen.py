@@ -100,98 +100,7 @@ def getCoins():
             return l[1].strip()
 
     
-def drawShop(pos=None, click=False):
-    global ballObjects
-    pygame.time.delay(20)
 
-    if pos != None:
-        c = 0
-        for i in surfaces:
-            if pos[0] > i[0] and pos[0] < i[0] + i[2]:
-                if pos[1] > i[1] + 80 and pos[1] < i[1] + i[3]:
-                    if click == True:
-                        root = tk.Tk()
-                        root.attributes("-topmost", True)
-                        root.withdraw()
-                        if ballObjects[c].locked == True:
-                            if messagebox.askyesno('Confirm Purchase?', 'Are you sure you would like to purchase this new ball for 10 coins?'):
-                                if int(getCoins()) >= 10:
-                                    ballObjects[c].unlock()
-                                    oldCoins = int(getCoins())
-                                    file = open('scores.txt', 'r')
-                                    f = file.readlines()
-
-                                    file = open('scores.txt', 'w')
-                                    for line in f:
-                                        l = line.split()
-                                        if l[0] == 'coins':
-                                            file.write('coins ' + str(oldCoins - 10)+ '\n')
-                                        else:
-                                            file.write(line)
-                                    file.close()
-                                else:
-                                    messagebox.showerror('Not enough coins!', 'You do not have enough coins to purchase this item!')
-                
-                                try:
-                                    root.destroy()
-                                    break
-                                except:
-                                    break
-                            else:
-                                break
-                        else:
-                            for balls in ballObjects:
-                                balls.equipped = False
-                                
-                            ballObjects[c].equip()
-                            ballObjects[c].equipped = True
-            c = c + 1
-    
-    surf = pygame.Surface((1080, 600))
-    surf.blit(back,(0,0))
-    backButton = font.render('<-- Back', 1, (135,206,250))
-    surf.blit(backButton, (10, 560))
-    text = font.render('Coins: ' + getCoins(), 1, (51,51,153))
-    surf.blit(text, (10, 10))
-    count = 0
-    c = 0
-    xVal = 0
-    file = open('scores.txt', 'r')
-    for line in file:
-        if line.find('True') != -1 or line.find('False') != -1:
-            count += 1
-            l = line.split('-')
-            color = l[0]
-            color = color.split(',')
-            newList = []
-            
-            for num in color:
-                newList.append(int(num))
-            if len(ballObjects) <= 15:
-                if l[1].strip() == 'True':
-                    obj = ball(tuple(newList), False, l[0])
-                else:
-                    obj = ball(tuple(newList), True, l[0])
-
-                if len(ballObjects) == 0:
-                    obj.equip()
-            else:
-                obj = ballObjects[c]
-
-            s = obj.getSurf()
-            surf.blit(s, ((200 * count) - 150, 50 + (xVal * 160)))
-            surfaces.append([(200 * count) - 150, 50 + (xVal * 160), 160, 125])
-            ballObjects.append(obj)
-            if count % 5 == 0:
-                xVal = xVal + 1
-                count = 0
-            c = c + 1
-    file.close()
-
-
-    
-    pygame.display.update()
-    return surf
 
 
 def getBallColor():
@@ -211,9 +120,9 @@ def mainScreen(hover=False):
     surf.blit(title, ((1080/2 - (w/2)), 50))
     # For Shop Button
     if hover == True:
-        text = font.render('Ball Shop', 1,(0, 0, 0))
+        text = font.render('', 1,(0, 0, 0))
     else:
-        text = font.render('Ball Shop', 1, (51, 51, 153))
+        text = font.render('', 1, (51, 51, 153))
     surf.blit(text, (960, 12))
     shopButton = text.get_rect()
     shopButton[0] = 960
@@ -249,13 +158,7 @@ def mouseOver(larger=False):
     mainScreen()
 
 
-def shopClick(pos):
-    global shopButton
-    i = shopButton
-    if pos[0] > i[0] and pos[0] < i[0] + i[2]:
-        if pos[1] > i[1] and pos[1] < i[1] + i[3]:
-            return True
-    return False
+
 
 
 def click(pos):

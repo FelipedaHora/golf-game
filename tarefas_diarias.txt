@@ -1,0 +1,2 @@
+12/07 - Ajustado para disparar a bolinha somente no segundo click, exemplo: no primeiro click o angulo é travado e a força entra em loop para
+disparar a bolinha somente após o segundo click.
