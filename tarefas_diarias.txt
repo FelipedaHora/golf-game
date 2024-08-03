@@ -1,2 +1,9 @@
 12/07 - Ajustado para disparar a bolinha somente no segundo click, exemplo: no primeiro click o angulo é travado e a força entra em loop para
 disparar a bolinha somente após o segundo click.
+
+CORRECOES - N trabalhar com angulo, utilizar vetores na fisica.
+REESTRUTURACAO completa da fisica e da hierarquia das classes. exemplo: plataforma e bola herdará de objeto
+lista de objetos para o processamento de fisica e para renderização.
+ordem de processamento: primeiro eventos, depois a fisica e por ultimo a tela
+biblioteca de vetores, posicao, velocidade, aceleracoes e os métodos.
+Usar atualizacoes da fisica para atualizar posicao e velocidade utilizando o tempo.
