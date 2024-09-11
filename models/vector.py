@@ -20,7 +20,7 @@ class Vector:
         self.__mul__(mod)        
     
     def module(self):
-        return math.sqrt(Vector.prod_int(self, self))
+        return math.sqrt(self.x**2 + self.y**2)
     
     @staticmethod
     def prod_int(v1, v2):

@@ -11,3 +11,4 @@ class AssetsPort:
     # coin10 = scale_image(pygame.image.load("assets/sprites/coin10.png"), 0.55)
     # coin20 = scale_image(pygame.image.load("assets/sprites/coin20.png"), 0.55)
     # coin50 = scale_image(pygame.image.load("assets/sprites/coin50.png"), 0.55)
+    power = scale_image(pygame.image.load("assets/sprites/power.png"), 0.55)
