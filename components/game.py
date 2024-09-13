@@ -10,6 +10,9 @@ class Game:
     
     def __init__(self):
         pygame.init()
+        pygame.mixer.init()
+
+
     
     def run(self):
         # Inicializa Pygame
@@ -20,12 +23,32 @@ class Game:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Super Mini Golf")
 
-        explosion_animation = Animation("assets/sprites/coin3.png", 64, 64, 8, 0.1)
+        # Carregar as imagens da moeda
+        coin_images = []
+        for i in range(1, 9):  # Como as imagens vão de coin1 até coin8
+            try:
+                image = pygame.image.load(f"assets/sprites/coin{i}.png")
+                coin_images.append(image)
+            except pygame.error as e:
+                print(f"Erro ao carregar imagem coin{i}: {e}")
+
+        # Verifica se as imagens foram carregadas corretamente
+        if not coin_images:
+            print("Nenhuma imagem de moeda foi carregada.")
+            return
+
+        # Lista de sprites para a animação
+        animation = Animation(coin_images, 200)
 
         # Load an audio file
         pygame.mixer.music.load("sounds/music.mp3")
+        putt_sound = pygame.mixer.Sound("sounds/putt.wav")
+        wrong_sound = pygame.mixer.Sound("sounds/wrong12.wav")
+        inHole_sound = pygame.mixer.Sound("sounds/inHole.wav")
+        splash_sound = pygame.mixer.Sound("sounds/splash.wav")
 
         # Play the audio
+        pygame.mixer.music.play()
 
         # Inicializa a bola
         ball = Ball(200, 300, 10, (255, 0, 0), WIDTH, HEIGHT)
@@ -74,8 +97,6 @@ class Game:
             Obstacle(0, 441, "assets/sprites/sandEdge.png"),
             Obstacle(0, 504, "assets/sprites/sandEdge.png"),
             Obstacle(0, 567, "assets/sprites/sandEdge.png"),
-
-
             Obstacle(17, 585, "assets/sprites/sandBottom.png"),
             Obstacle(54, 585, "assets/sprites/sandBottom.png"),
             Obstacle(117, 585, "assets/sprites/sandBottom.png"),
@@ -112,14 +133,15 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     ball.handle_input(mouse_pos)
+                    
 
             # Calcula o delta_time
             delta_time = clock.tick(render_fps) / 1000.0
             
+            animation.update(delta_time)
+                
             # Incrementa a força da bola se necessário
             ball.charge_force(delta_time)
-
-            explosion_animation.update(delta_time)
             
             # Atualização da física em subpassos
             time_accumulator = 0
@@ -136,6 +158,7 @@ class Game:
 
                 # Verifica se a bola entrou no buraco
                 if hole.check_collision(ball):
+                    inHole_sound.play()
                     print("Parabéns! Você venceu!")
                     pygame.quit()
                     sys.exit()
@@ -146,8 +169,14 @@ class Game:
             background_image = pygame.image.load("assets/sprites/back.png")
             background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 
+            animation.draw(screen, (400, 300)) 
+
             # Renderiza o fundo e os objetos
             screen.blit(background_image, (0, 0))
+
+            # Desenha a animação na tela
+            animation.draw(screen, (400, 300))
+
             for obj in object_list:
                 obj.draw(screen)
             
