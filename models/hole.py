@@ -21,11 +21,15 @@ class Hole(Object):
         dx = abs(ball.position.x - hole_center_x)
         dy = abs(ball.position.y - hole_center_y)
 
-        # Normaliza as distâncias em relação aos raios do buraco
-        normalized_x = dx / (self.width / 2)
-        normalized_y = dy / (self.height / 2)
+        # Calcula os raios efetivos (metade da largura/altura + raio da bola)
+        effective_width = self.width / 2 + ball.radius
+        effective_height = self.height / 2 + ball.radius
 
-        # Verifica se a bola está dentro da elipse
+        # Normaliza as distâncias em relação aos raios efetivos
+        normalized_x = dx / effective_width
+        normalized_y = dy / effective_height
+
+        # Verifica se a bola está tocando ou dentro da elipse
         return (normalized_x**2 + normalized_y**2) <= 1
 
     def update(self, delta_time):

@@ -279,7 +279,7 @@ class Game:
 
         # Inicializa a bola e o buraco
         ball = Ball(100, 500 , 10, (255, 0, 0), WIDTH, HEIGHT)
-        hole = Hole(1000, 575, 40, 20)
+        hole = Hole(1000, 580, 20, 10)
 
         # Carrega a imagem de fundo uma vez, fora do loop
         background_image = pygame.image.load("assets/sprites/back.png")
