@@ -4,7 +4,7 @@ from models.vector import Vector
 
 class Ball(Object):
 
-    def __init__(self, x, y, radius, color, width, height):
+    def __init__(self, x, y, radius, color, width, height, animation=None):
         super().__init__(Vector(x, y), Vector(0, 0), Vector(0, 900))  # Gravidade reduzida
         self.radius = radius
         self.color = color
@@ -12,7 +12,11 @@ class Ball(Object):
         self.height = height
         self.charge_time = 0
         self.is_charging = False
-        self.max_force = 7500  # Força máxima aumentada
+        self.max_force = 7500  # Força máxima aumentada~
+
+                # Animação associada à bola
+        self.animation = animation
+        self.is_animating = False
 
     def handle_input(self, mouse_pos):
         if not self.is_charging:
@@ -58,7 +62,15 @@ class Ball(Object):
 
         putt_sound = pygame.mixer.Sound("sounds/putt.wav")
 
+        # Play the audio
         putt_sound.play()
+
+        # Inicia a animação
+        if self.animation:
+            self.is_animating = True
+            self.animation.current_frame = 0
+            self.animation.elapsed_time = 0
+
 
     def charge_force(self, delta_time):
         if self.is_charging:
@@ -67,6 +79,14 @@ class Ball(Object):
     def update(self, delta_time):
         self.physics(delta_time)
         self.handle_collisions()
+
+        # Atualiza a animação, se estiver ativa
+        if self.is_animating and self.animation:
+            self.animation.update(delta_time * 100)
+
+            # Se a animação tiver completado todos os quadros, pare a animação
+            if self.animation.current_frame == len(self.animation.images) - 1:
+                self.is_animating = False
 
     def get_rect(self):
         return pygame.Rect(
@@ -91,4 +111,10 @@ class Ball(Object):
             self.speed.x *= -0.8
 
     def draw(self, screen):
+        # Desenha a animação atrás da bola
+        if self.is_animating and self.animation:
+            position = (self.position.x - self.animation.images[0].get_width() // 2,
+                        self.position.y - self.animation.images[0].get_height() // 2)
+            self.animation.draw(screen, position)
+
         pygame.draw.circle(screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)

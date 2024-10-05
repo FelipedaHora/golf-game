@@ -260,13 +260,19 @@ class Game:
             pygame.image.load(f"assets/sprites/coin{i}.png") for i in range(1, 9)
         ]
 
+        exploson_images = [
+            pygame.image.load(f"assets/sprites/explosion-{i}.png") for i in range(1, 9)
+        ]
+
         frame_duration = 0.1  # Duração de cada quadro em segundos
 
         # Lista de moedas no jogo
         coins = [Coin(100, 300, coin_images, frame_duration), Coin(200, 150, coin_images, frame_duration)]
 
         # Inicializa a animação
-        animation = Animation(coin_images, 200)
+        animationCoin = Animation(coin_images, 200)
+
+        animationExplosion = Animation(exploson_images, 200)
 
         # Carrega sons
         pygame.mixer.music.load("sounds/music.mp3")
@@ -274,16 +280,19 @@ class Game:
         wrong_sound = pygame.mixer.Sound("sounds/wrong12.wav")
         inHole_sound = pygame.mixer.Sound("sounds/inHole.wav")
         splash_sound = pygame.mixer.Sound("sounds/splash.wav")
+        bouncing_sound = pygame.mixer.Sound("sounds/bouncing_ball.wav")
 
         pygame.mixer.music.play()
 
         # Inicializa a bola e o buraco
-        ball = Ball(100, 500 , 10, (255, 0, 0), WIDTH, HEIGHT)
+        ball = Ball(100, 500 , 10, (255, 0, 0), WIDTH, HEIGHT, animationExplosion)
         hole = Hole(1000, 580, 30, 10)
 
         # Carrega a imagem de fundo uma vez, fora do loop
         background_image = pygame.image.load("assets/sprites/back.png")
         background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+
+        font = pygame.font.Font(None, 36)  # Você pode ajustar o tamanho ou usar uma fonte personalizada
 
         # Obstáculos
         obstacles = [
@@ -358,6 +367,36 @@ class Game:
         # Relógio para controle de FPS
         clock = pygame.time.Clock()
 
+        def show_victory_screen(screen, font):
+            # Preenche a tela com preto
+            screen.fill((0, 0, 0))
+            
+            # Texto de vitória
+            victory_text = "Parabéns! Você venceu!"
+            text_surface = font.render(victory_text, True, (255, 255, 255))
+            
+            # Obtém as dimensões da tela
+            screen_width = screen.get_width()
+            screen_height = screen.get_height()
+            
+            # Posiciona o texto no centro da tela
+            text_rect = text_surface.get_rect(center=(screen_width // 2, screen_height // 2))
+            
+            # Desenha o texto na tela
+            screen.blit(text_surface, text_rect)
+            pygame.display.flip()
+
+            # Espera por um clique do mouse ou tecla pressionada para continuar
+            waiting = True
+            while waiting:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        return False  # Indica que o jogo deve ser encerrado
+                    if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
+                        waiting = False
+
+            return True  # Indica que o jogo pode continuar (se necessário)
+
         # Loop principal do jogo
         while True:
             # Eventos de input
@@ -373,7 +412,7 @@ class Game:
 
             # Atualiza o tempo e a animação
             delta_time = clock.tick(FPS) / 1000.0
-            animation.update(delta_time)   # Atualiza a animação
+            animationCoin.update(delta_time)   # Atualiza a animação
 
             # Incrementa a força da bola
             ball.charge_force(delta_time)
@@ -387,19 +426,21 @@ class Game:
             for obstacle in obstacles:
                 if self.check_collision(ball, obstacle):
                     self.handle_collision(ball, obstacle)
+                    
 
             # Verifica se a bola entrou no buraco
             if hole.check_collision(ball):
                 inHole_sound.play()
-                print("Parabéns! Você venceu!")
-                pygame.quit()
-                sys.exit()
+                pygame.time.wait(1000)
+                if show_victory_screen(screen, font):
+                    pygame.quit()
+                    sys.exit()
 
             # Renderiza o fundo
             screen.blit(background_image, (0, 0))
 
             # Renderiza a animação no topo
-            animation.draw(screen, (400, 300))  # Atualiza a posição conforme necessário
+            animationCoin.draw(screen, (400, 300))  # Atualiza a posição conforme necessário
 
             # Atualiza e desenha as moedas
             for coin in coins:
@@ -458,3 +499,14 @@ class Game:
                 ball.speed.y *= 0.95
             else:
                 ball.speed.x *= 0.95
+
+            bouncing_sound = pygame.mixer.Sound("sounds/bouncing_ball.wav")
+            bouncing_sound.play()
+
+
+
+
+
+    
+    
+
