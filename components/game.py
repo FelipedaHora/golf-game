@@ -279,7 +279,7 @@ class Game:
 
         # Inicializa a bola e o buraco
         ball = Ball(100, 500 , 10, (255, 0, 0), WIDTH, HEIGHT)
-        hole = Hole(1000, 580, 20, 10)
+        hole = Hole(1000, 580, 30, 10)
 
         # Carrega a imagem de fundo uma vez, fora do loop
         background_image = pygame.image.load("assets/sprites/back.png")
@@ -346,6 +346,11 @@ class Game:
                     Obstacle(1019, 593, "assets/sprites/green.png"),
 
                     Obstacle(944, 536, "assets/sprites/sandEdge.png"),
+                    Obstacle(944, 472, "assets/sprites/sandEdge.png"),
+                    Obstacle(944, 408, "assets/sprites/sandEdge.png"),
+                    Obstacle(944, 344, "assets/sprites/sandEdge.png"),
+                    Obstacle(944, 280, "assets/sprites/sandEdge.png"),
+                    Obstacle(944, 0, "assets/sprites/sandEdge.png"),
                 ]
 
         object_list = [ball] + obstacles + [hole]

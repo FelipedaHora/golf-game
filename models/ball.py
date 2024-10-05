@@ -3,6 +3,7 @@ from models.object import Object
 from models.vector import Vector
 
 class Ball(Object):
+
     def __init__(self, x, y, radius, color, width, height):
         super().__init__(Vector(x, y), Vector(0, 0), Vector(0, 900))  # Gravidade reduzida
         self.radius = radius
@@ -54,6 +55,10 @@ class Ball(Object):
         
         # Aplica a força à direção ajustada
         self.speed = Vector(adjusted_direction.x * force, adjusted_direction.y * force)
+
+        putt_sound = pygame.mixer.Sound("sounds/putt.wav")
+
+        putt_sound.play()
 
     def charge_force(self, delta_time):
         if self.is_charging:
