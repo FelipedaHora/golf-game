@@ -264,15 +264,35 @@ class Game:
             pygame.image.load(f"assets/sprites/explosion-{i}.png") for i in range(1, 9)
         ]
 
+        # Defina o tamanho desejado
+        LARGURA_DESEJADA = 60
+        ALTURA_DESEJADA = 70
+
+        flags_images = [
+            pygame.transform.scale(
+                pygame.image.load(f"assets/sprites/ANIMATION-0{i}.png"),
+                (LARGURA_DESEJADA, ALTURA_DESEJADA)
+            ) for i in range(1, 7)
+        ]
+
         frame_duration = 0.1  # Duração de cada quadro em segundos
 
         # Lista de moedas no jogo
-        coins = [Coin(100, 300, coin_images, frame_duration), Coin(200, 150, coin_images, frame_duration)]
+
+        coins = [
+            Coin(45, 84, coin_images, frame_duration),
+            Coin(200, 150, coin_images, frame_duration),
+            Coin(910, 38, coin_images, frame_duration)
+        ]
 
         # Inicializa a animação
-        animationCoin = Animation(coin_images, 200)
+        #animationCoin = Animation(coin_images, 200)
+
+        collected_coins = 0
 
         animationExplosion = Animation(exploson_images, 200)
+
+        animationFlag = Animation(flags_images, 200)
 
         # Carrega sons
         pygame.mixer.music.load("sounds/music.mp3")
@@ -307,6 +327,8 @@ class Game:
                     Obstacle(0, 441, "assets/sprites/sandEdge.png"),
                     Obstacle(0, 504, "assets/sprites/sandEdge.png"),
                     Obstacle(0, 567, "assets/sprites/sandEdge.png"),
+                    Obstacle(0, 450, "assets/sprites/sandBottom.png"),
+                    Obstacle(0, 100, "assets/sprites/sandBottom.png"),
                     
                     # PAREDE 2
                     #Obstacle(160, 63, "assets/sprites/sandEdge.png"),
@@ -318,6 +340,7 @@ class Game:
                     Obstacle(190, 441, "assets/sprites/sandEdge.png"),
                     Obstacle(190, 504, "assets/sprites/sandEdge.png"),
                     Obstacle(190, 567, "assets/sprites/sandEdge.png"),
+                    
 
                     #  LADO DIREITO
                     Obstacle(0, 0, "assets/sprites/sandEdge.png"),
@@ -360,6 +383,8 @@ class Game:
                     Obstacle(944, 344, "assets/sprites/sandEdge.png"),
                     Obstacle(944, 280, "assets/sprites/sandEdge.png"),
                     Obstacle(944, 0, "assets/sprites/sandEdge.png"),
+
+                    Obstacle(880, 48, "assets/sprites/sandBottom.png"),
                 ]
 
         object_list = [ball] + obstacles + [hole]
@@ -367,23 +392,66 @@ class Game:
         # Relógio para controle de FPS
         clock = pygame.time.Clock()
 
+        # Definindo o par do único buraco
+        par_do_buraco = 4  # Exemplo: buraco par 4
+
+        def calcular_pontuacao_unico_buraco(tacadas):
+            # Calcula a diferença entre o número de tacadas e o par do buraco
+            diferenca = tacadas - par_do_buraco
+
+            if tacadas == 1:
+                return "Hole-in-One"
+            elif diferenca <= -3:
+                return "Albatross"
+            elif diferenca == -2:
+                return "Eagle"
+            elif diferenca == -1:
+                return "Birdie"
+            elif diferenca == 0:
+                return "Par"
+            elif diferenca == 1:
+                return "Bogey"
+            elif diferenca == 2:
+                return "Double Bogey"
+            elif diferenca == 3:
+                return "Triple Bogey"
+            else:
+                return f"{diferenca} Tacadas acima do par"
+
         def show_victory_screen(screen, font):
             # Preenche a tela com preto
             screen.fill((0, 0, 0))
             
-            # Texto de vitória
+            pontuacao = calcular_pontuacao_unico_buraco(ball.count_plays)
+
+            # Textos individuais
             victory_text = "Parabéns! Você venceu!"
-            text_surface = font.render(victory_text, True, (255, 255, 255))
-            
+            pontuacao_text = f"Pontuação: {pontuacao}"
+            moedas_text = f"{collected_coins} moedas coletadas"
+
+            # Renderizar cada linha de texto
+            victory_surface = font.render(victory_text, True, (255, 255, 255))
+            pontuacao_surface = font.render(pontuacao_text, True, (255, 255, 255))
+            moedas_surface = font.render(moedas_text, True, (255, 255, 255))
+
             # Obtém as dimensões da tela
             screen_width = screen.get_width()
             screen_height = screen.get_height()
-            
-            # Posiciona o texto no centro da tela
-            text_rect = text_surface.get_rect(center=(screen_width // 2, screen_height // 2))
-            
-            # Desenha o texto na tela
-            screen.blit(text_surface, text_rect)
+
+            # Calcula as posições Y para cada linha de texto
+            spacing = 10  # Espaço entre as linhas
+            total_height = victory_surface.get_height() + pontuacao_surface.get_height() + moedas_surface.get_height() + (2 * spacing)
+            start_y = (screen_height // 2) - (total_height // 2)
+
+            # Posiciona e desenha o texto no centro da tela, linha por linha
+            victory_rect = victory_surface.get_rect(center=(screen_width // 2, start_y))
+            screen.blit(victory_surface, victory_rect)
+
+            pontuacao_rect = pontuacao_surface.get_rect(center=(screen_width // 2, start_y + victory_surface.get_height() + spacing))
+            screen.blit(pontuacao_surface, pontuacao_rect)
+
+            moedas_rect = moedas_surface.get_rect(center=(screen_width // 2, pontuacao_rect.bottom + spacing))
+            screen.blit(moedas_surface, moedas_rect)
             pygame.display.flip()
 
             # Espera por um clique do mouse ou tecla pressionada para continuar
@@ -396,6 +464,7 @@ class Game:
                         waiting = False
 
             return True  # Indica que o jogo pode continuar (se necessário)
+        
 
         # Loop principal do jogo
         while True:
@@ -412,7 +481,8 @@ class Game:
 
             # Atualiza o tempo e a animação
             delta_time = clock.tick(FPS) / 1000.0
-            animationCoin.update(delta_time)   # Atualiza a animação
+            #animationCoin.update(delta_time)
+            animationFlag.update(delta_time)  # Atualiza a animação
 
             # Incrementa a força da bola
             ball.charge_force(delta_time)
@@ -427,7 +497,6 @@ class Game:
                 if self.check_collision(ball, obstacle):
                     self.handle_collision(ball, obstacle)
                     
-
             # Verifica se a bola entrou no buraco
             if hole.check_collision(ball):
                 inHole_sound.play()
@@ -440,12 +509,17 @@ class Game:
             screen.blit(background_image, (0, 0))
 
             # Renderiza a animação no topo
-            animationCoin.draw(screen, (400, 300))  # Atualiza a posição conforme necessário
+            #animationCoin.draw(screen, (10, 150))
+            animationFlag.draw(screen, (1013, 515))  # Atualiza a posição conforme necessário
 
             # Atualiza e desenha as moedas
             for coin in coins:
                 coin.update(delta_time)
                 coin.draw(screen)
+                if not coin.collected and coin.detect_collision(ball):
+                    coin.collect()
+                    collected_coins += 1
+                    
 
             # Renderiza os objetos
             for obj in object_list:
@@ -500,8 +574,8 @@ class Game:
             else:
                 ball.speed.x *= 0.95
 
-            bouncing_sound = pygame.mixer.Sound("sounds/bouncing_ball.wav")
-            bouncing_sound.play()
+            #bouncing_sound = pygame.mixer.Sound("sounds/bouncing_ball.wav")
+            #bouncing_sound.play()
 
 
 

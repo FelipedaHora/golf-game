@@ -26,12 +26,12 @@ class Obstacle(Object):
         self.physics(delta_time)
         self.rect.topleft = (self.position.x, self.position.y)
         
-    def check_collision(self, ball):
-        # Check if the ball collided with the obstacle
-        ball_rect = pygame.Rect(
-            ball.position.x - ball.radius,
-            ball.position.y - ball.radius,
-            ball.radius * 2,
-            ball.radius * 2
-        )
-        return self.rect.colliderect(ball_rect)
+    # def check_collision(self, ball):
+    #     # Check if the ball collided with the obstacle
+    #     ball_rect = pygame.Rect(
+    #         ball.position.x - ball.radius,
+    #         ball.position.y - ball.radius,
+    #         ball.radius * 2,
+    #         ball.radius * 2
+    #     )
+    #     return self.rect.colliderect(ball_rect)

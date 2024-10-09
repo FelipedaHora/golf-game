@@ -13,10 +13,10 @@ class Ball(Object):
         self.charge_time = 0
         self.is_charging = False
         self.max_force = 7500  # Força máxima aumentada~
-
-                # Animação associada à bola
+        # Animação associada à bola
         self.animation = animation
         self.is_animating = False
+        self.count_plays = 0
 
     def handle_input(self, mouse_pos):
         if not self.is_charging:
@@ -71,6 +71,9 @@ class Ball(Object):
             self.animation.current_frame = 0
             self.animation.elapsed_time = 0
 
+        # Incrementa o número de jogadas
+        self.count_plays += 1
+
 
     def charge_force(self, delta_time):
         if self.is_charging:
@@ -82,7 +85,7 @@ class Ball(Object):
 
         # Atualiza a animação, se estiver ativa
         if self.is_animating and self.animation:
-            self.animation.update(delta_time * 100)
+            self.animation.update(delta_time * 700)
 
             # Se a animação tiver completado todos os quadros, pare a animação
             if self.animation.current_frame == len(self.animation.images) - 1:
