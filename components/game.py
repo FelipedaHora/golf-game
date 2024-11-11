@@ -231,7 +231,8 @@
 #                 ball.speed.x *= 0.95 
 
 import sys
-import pygame
+import pygame 
+from components.pauseMenu import PauseMenu
 from models.animation import Animation
 from models.ball import Ball
 from models.coin import Coin
@@ -311,6 +312,13 @@ class Game:
         # Carrega a imagem de fundo uma vez, fora do loop
         background_image = pygame.image.load("assets/sprites/back.png")
         background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+
+        # Cria o menu de pausa
+        menuIcon = pygame.image.load("assets/sprites/MENU.png")
+        menuIcon = pygame.transform.scale(menuIcon, (40, 40))
+        menu_rect = menuIcon.get_rect(center=(100, 100))
+        
+
 
         font = pygame.font.Font(None, 36)  # Você pode ajustar o tamanho ou usar uma fonte personalizada
 
@@ -477,7 +485,33 @@ class Game:
                 # Verifica se o mouse foi clicado
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    ball.handle_input(mouse_pos)
+
+                    # Verifica se o clique foi no ícone do menu (posição 995,10 com tamanho 40x40)
+                    menu_rect = pygame.Rect(995, 10, 40, 40)
+                    if menu_rect.collidepoint(mouse_pos):
+                        pause_menu = PauseMenu()
+                        option_selected = pause_menu.run()
+                        
+                        if option_selected == "Retornar ao Jogo":
+                            continue
+                        elif option_selected == "Menu":
+                            Menu()  # Redireciona ao menu principal
+                            continue  # Retorna para o loop para exibir o menu principal
+                    else:
+                        ball.handle_input(mouse_pos)  # Se não clicou no menu, processa o input da bola
+                    #ball.handle_input(mouse_pos)
+
+                 # Verifica se a tecla 'P' foi pressionada para pausar o jogo
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:
+                        pause_menu = PauseMenu()
+                        option_selected = pause_menu.run()
+
+                        if option_selected == "Retornar ao Jogo":
+                            continue  # Sai do menu de pausa e continua o loop principal
+                        elif option_selected == "Sair":
+                            pygame.quit()
+                            sys.exit()
 
             # Atualiza o tempo e a animação
             delta_time = clock.tick(FPS) / 1000.0
@@ -507,6 +541,8 @@ class Game:
 
             # Renderiza o fundo
             screen.blit(background_image, (0, 0))
+
+            screen.blit(menuIcon, (995, 10))
 
             # Renderiza a animação no topo
             #animationCoin.draw(screen, (10, 150))
