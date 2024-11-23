@@ -1,6 +1,7 @@
 Introdução
 Desenvolver um jogo 2D utilizando Pygame pode apresentar diversos desafios, especialmente para desenvolvedores menos experientes. Este relatório aborda alguns dos problemas mais comuns encontrados, como física para o movimento da bola, animação de sprites, aprendizado de um novo framework (Pygame), revisão de princípios SOLID e conceitos de POO. Para cada problema, é apresentada uma breve explicação, uma solução com exemplo de código e uma conclusão.
-Física para o Movimento da Bola
+
+PROBLEMA 01 - Física para o Movimento da Bola
 Explicação: Implementar a física para o movimento da bola pode ser complicado, pois envolve cálculos de aceleração, velocidade, colisões e gravidade.
 Solução: Para resolver isso, utilizamos um simples modelo de movimento com aceleração e gravidade.
 python
@@ -54,7 +55,8 @@ class Object:
 
 
 Conclusão: Implementar a física da bola requer uma boa compreensão dos conceitos de movimento e colisão, mas utilizando um modelo básico de gravidade e amortecimento, é possível criar uma simulação realista.
-Animação de Sprites
+
+PROBLEMA 02 - Animação de Sprites
 Explicação: Animação de sprites pode ser difícil devido à necessidade de gerenciar várias imagens e garantir que elas sejam exibidas de forma fluida.
 Solução: Utilizar uma lista de imagens para criar animações simples.
 class Animation:
@@ -102,7 +104,8 @@ class Animation:
 
 
 Conclusão: Animação de sprites em Pygame pode ser simplificada utilizando listas de imagens e controlando o tempo de exibição de cada frame.
-Aprendizado de Novo Framework (Pygame)
+
+PROBLEMA 03 - Aprendizado de Novo Framework (Pygame)
 Explicação: Aprender um novo framework como Pygame pode ser um desafio, especialmente para aqueles que não têm experiência prévia com desenvolvimento de jogos.
 Solução: Seguir tutoriais e exemplos básicos pode ajudar a superar a curva de aprendizado inicial.
 #         # Inicializa Pygame
@@ -177,7 +180,8 @@ Solução: Seguir tutoriais e exemplos básicos pode ajudar a superar a curva de
 
 
 Conclusão: Dedicar tempo a estudar tutoriais e exemplos é essencial para dominar Pygame e tornar o processo de desenvolvimento mais eficiente.
-Revisar Princípios de SOLID
+
+PROBLEMA 04 - Revisar Princípios de SOLID
 Explicação: Seguir os princípios de SOLID garante um código mais organizado e fácil de manter.
 Solução: Utilizar o princípio de responsabilidade única (SRP) ao separar diferentes responsabilidades em classes distintas.
 class Object:
@@ -206,7 +210,8 @@ class Object:
 
 
 Conclusão: Aplicar os princípios de SOLID pode aumentar a modularidade e manutenção do código, resultando em um desenvolvimento mais organizado e escalável.
-Revisar Conceitos de POO
+
+PROBLEMA 05 - Revisar Conceitos de POO
 Explicação: Aplicar conceitos de Programação Orientada a Objetos (POO) é crucial para manter um código claro e gerenciável em projetos maiores.
 Solução: Criar classes para diferentes componentes do jogo, como a bola e o buraco
 #abstração
