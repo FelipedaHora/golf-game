@@ -69,7 +69,13 @@ class PauseMenu:
 
                         # Verificar se "Som" foi clicado
                         elif self.button_sound_rect.collidepoint(mouse_pos):
-                            self.sound_on = not self.sound_on  # Alterna o estado do som
+                            self.sound_on = not self.sound_on
+                            if self.sound_on:
+                                    if not pygame.mixer.music.get_busy():  # Verifica se a música está tocando
+                                        pygame.mixer.music.unpause()  # Retoma a música se não estiver tocando
+                            else:
+                                pygame.mixer.music.pause()  # Pausa a música
+
 
                         # Verificar se "Sair" foi clicado
                         elif self.button_exit_rect.collidepoint(mouse_pos):

@@ -230,9 +230,12 @@
 #             else:
 #                 ball.speed.x *= 0.95 
 
+import os
 import sys
 import pygame 
+from components.menu import Menu
 from components.pauseMenu import PauseMenu
+from components.scoreboards import Scoreboard
 from models.animation import Animation
 from models.ball import Ball
 from models.coin import Coin
@@ -471,98 +474,175 @@ class Game:
                     if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
                         waiting = False
 
+            # Adicionar campo para digitar nome
+            input_box = pygame.Rect(screen_width // 2 - 100, moedas_rect.bottom + 50, 200, 32)
+            color_inactive = pygame.Color('lightskyblue3')
+            color_active = pygame.Color('dodgerblue2')
+            color = color_inactive
+            text = ''
+            active = False
+            clock = pygame.time.Clock()
+
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        return False  # Indica que o jogo deve ser encerrado
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Quando o usuário clica na área do campo de texto
+                        if input_box.collidepoint(event.pos):
+                            active = True
+                        else:
+                            active = False
+                        color = color_active if active else color_inactive
+                    if event.type == pygame.KEYDOWN:
+                        if active:
+                            if event.key == pygame.K_RETURN:
+                                # Salva o score com o nome do jogador
+                                save_score(text, ball.count_plays, collected_coins)
+                                return True  # Volta para o menu ou a tela principal
+                            elif event.key == pygame.K_BACKSPACE:
+                                text = text[:-1]
+                            else:
+                                text += event.unicode
+
+                # Desenha o campo de entrada de texto
+                screen.fill((0, 0, 0))
+                pygame.draw.rect(screen, color, input_box, 2)
+                font_input = pygame.font.Font(None, 32)
+                txt_surface = font_input.render(text, True, color)
+                screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+                input_box.w = max(200, txt_surface.get_width() + 10)
+
+                # Renderiza os outros textos
+                screen.blit(victory_surface, victory_rect)
+                screen.blit(pontuacao_surface, pontuacao_rect)
+                screen.blit(moedas_surface, moedas_rect)
+
+                pygame.display.flip()
+                clock.tick(30)
+
             return True  # Indica que o jogo pode continuar (se necessário)
+
+        # Método para salvar o score no arquivo
+        def save_score(name, score, coins):
+            # Cria o arquivo scores.txt se não existir
+            if not os.path.exists("scores.txt"):
+                with open("scores.txt", "w") as file:
+                    file.write("Nome, Pontuação, Moedas\n")  # Cabeçalho do arquivo
+
+            # Adiciona a pontuação no arquivo
+            with open("scores.txt", "a") as file:
+                file.write(f"{name}, {score}, {coins}\n")
+
+            print(f"Score de {name} salvo com sucesso!")
         
 
         # Loop principal do jogo
-        while True:
-            # Eventos de input
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+        running = True
+        while running:
+            menu = Menu()
+            action = menu.run()  # Executa o menu e espera a seleção do usuário
 
-                # Verifica se o mouse foi clicado
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = pygame.mouse.get_pos()
-
-                    # Verifica se o clique foi no ícone do menu (posição 995,10 com tamanho 40x40)
-                    menu_rect = pygame.Rect(995, 10, 40, 40)
-                    if menu_rect.collidepoint(mouse_pos):
-                        pause_menu = PauseMenu()
-                        option_selected = pause_menu.run()
-                        
-                        if option_selected == "Retornar ao Jogo":
-                            continue
-                        elif option_selected == "Menu":
-                            Menu()  # Redireciona ao menu principal
-                            continue  # Retorna para o loop para exibir o menu principal
-                    else:
-                        ball.handle_input(mouse_pos)  # Se não clicou no menu, processa o input da bola
-                    #ball.handle_input(mouse_pos)
-
-                 # Verifica se a tecla 'P' foi pressionada para pausar o jogo
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_p:
-                        pause_menu = PauseMenu()
-                        option_selected = pause_menu.run()
-
-                        if option_selected == "Retornar ao Jogo":
-                            continue  # Sai do menu de pausa e continua o loop principal
-                        elif option_selected == "Sair":
+            if action == "Iniciar Jogo":
+                # Loop do jogo
+                in_game = True
+                while in_game:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
                             pygame.quit()
                             sys.exit()
 
-            # Atualiza o tempo e a animação
-            delta_time = clock.tick(FPS) / 1000.0
-            #animationCoin.update(delta_time)
-            animationFlag.update(delta_time)  # Atualiza a animação
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            mouse_pos = pygame.mouse.get_pos()
+                            menu_rect = pygame.Rect(995, 10, 40, 40)
+                            if menu_rect.collidepoint(mouse_pos):
+                                # Abre o menu de pausa
+                                pause_menu = PauseMenu()
+                                option_selected = pause_menu.run()
 
-            # Incrementa a força da bola
-            ball.charge_force(delta_time)
+                                if option_selected == "Retornar ao Jogo":
+                                    continue
+                                elif option_selected == "Sair":
+                                    in_game = False  # Sai do jogo para o menu
+                                    break
+                            else:
+                                # Processa a entrada do jogo (como clicar para movimentar a bola)
+                                ball.handle_input(mouse_pos)
 
-            # Atualiza a física dos objetos
-            for obj in object_list:
-                if isinstance(obj, (Ball, Obstacle)):
-                    obj.update(delta_time)
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                            # Abre o menu de pausa quando a tecla 'P' é pressionada
+                            pause_menu = PauseMenu()
+                            option_selected = pause_menu.run()
 
-            # Checa colisões com obstáculos
-            for obstacle in obstacles:
-                if self.check_collision(ball, obstacle):
-                    self.handle_collision(ball, obstacle)
-                    
-            # Verifica se a bola entrou no buraco
-            if hole.check_collision(ball):
-                inHole_sound.play()
-                pygame.time.wait(1000)
-                if show_victory_screen(screen, font):
-                    pygame.quit()
-                    sys.exit()
+                            if option_selected == "Retornar ao Jogo":
+                                continue
+                            elif option_selected == "Sair":
+                                pygame.quit()
+                                sys.exit()
 
-            # Renderiza o fundo
-            screen.blit(background_image, (0, 0))
+                    # Lógica do jogo
+                    if not in_game:
+                        break  # Sai para o menu
 
-            screen.blit(menuIcon, (995, 10))
+                    delta_time = clock.tick(FPS) / 1000.0
+                    animationFlag.update(delta_time)
+                    ball.charge_force(delta_time)
 
-            # Renderiza a animação no topo
-            #animationCoin.draw(screen, (10, 150))
-            animationFlag.draw(screen, (1013, 515))  # Atualiza a posição conforme necessário
+                    for obj in object_list:
+                        if isinstance(obj, (Ball, Obstacle)):
+                            obj.update(delta_time)
 
-            # Atualiza e desenha as moedas
-            for coin in coins:
-                coin.update(delta_time)
-                coin.draw(screen)
-                if not coin.collected and coin.detect_collision(ball):
-                    coin.collect()
-                    collected_coins += 1
-                    
+                    for obstacle in obstacles:
+                        if self.check_collision(ball, obstacle):
+                            self.handle_collision(ball, obstacle)
 
-            # Renderiza os objetos
-            for obj in object_list:
-                obj.draw(screen)
+                    if hole.check_collision(ball):
+                        inHole_sound.play()
+                        pygame.time.wait(1000)
+                        if show_victory_screen(screen, font):
+                            in_game = False  # Sai para o menu
+                            break
 
-            # Atualiza a tela
-            pygame.display.flip()
+                    # Desenho da tela
+                    screen.blit(background_image, (0, 0))
+                    screen.blit(menuIcon, (995, 10))
+                    animationFlag.draw(screen, (1013, 515))
+
+                    for coin in coins:
+                        coin.update(delta_time)
+                        coin.draw(screen)
+                        if not coin.collected and coin.detect_collision(ball):
+                            coin.collect()
+                            collected_coins += 1
+
+                    for obj in object_list:
+                        obj.draw(screen)
+
+                    pygame.display.flip()
+
+            elif action == "Scores":
+                # Se o botão "Scores" foi clicado, exibe a tela de scoreboard
+                scoreboard = Scoreboard(screen)
+                running_scoreboard = True
+                while running_scoreboard:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            running_scoreboard = False
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:  # Se pressionar ESC, voltar ao menu
+                                running_scoreboard = False
+
+                    scoreboard.display()  # Exibe o scoreboard na tela
+
+            elif action == "Sair":
+                running = False  # Sai do programa
+
+        pygame.quit()
+        sys.exit()
+
+
+
+
 
     def check_collision(self, ball, obstacle):
         # Checagem de colisão retangular
